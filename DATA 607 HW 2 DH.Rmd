@@ -1,0 +1,21 @@
+---
+title: "DATA 607 HW 2"
+author: "Daniel Hong"
+date: "February 7, 2016"
+output: html_document
+---
+
+#DJIA data from UCI
+#https://raw.githubusercontent.com/danielhong98/MSDA-Spring-2016/master/dow_jones_index.data
+#https://raw.githubusercontent.com/danielhong98/MSDA-Spring-2016/master/dow_jones_index.names
+
+#User Library plyr - Tools for Splitting, Applying and Combining Data
+library(plyr)
+dat <- data.frame(read.csv("https://raw.githubusercontent.com/danielhong98/MSDA-Spring-2016/master/dow_jones_index.data", header = TRUE))
+#Create a subset of Column Names - Quarter, Stock, Date, Close, Volume, Percent_Change_Price, Percent_Change_Volume_Over_Last_wk
+DJIA <- subset(dat, select = c(1, 2, 3, 7, 8, 9, 10))
+head(DJIA)
+#Isolate DJIA components that declined on heavier volume week over week
+Decliners_DJIA <- subset(DJIA, percent_change_price <= -5.0 & percent_change_volume_over_last_wk >= 5.0)
+#Show Values
+Decliners_DJIA[1:13,1:7]
