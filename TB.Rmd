@@ -1,0 +1,37 @@
+---
+title: "Untitled"
+author: "Daniel Hong"
+date: "February 14, 2016"
+output: pdf_document
+---
+
+#Load tuberculosis data and subset because we do not need to know the difference between genders, although this could be an important attribute for analysis in the future
+tb <- read.csv(url("https://raw.githubusercontent.com/danielhong98/MSDA-Spring-2016/master/tb(1).csv"))
+tbsubset <- subset(tb, select = c(1,2,4,5,6))
+
+#Get headers from SQL file and add to tb data
+names(tbsubset) = c("country","year","child","adult","elderly")
+
+#With the data.table package, sum tb cases by country and year, however this creates duplicates. Did not remove negative values, not sure if this is an error, deaths related to tuberculosis, latent cases of tuberculosis or cured patients.
+library(data.table)
+setDT(tbsubset)[, tb.sum:=sum(child,adult,elderly), by= .(country, year)]
+tbsubset2 <- subset(tbsubset, select = c(1,2,6))
+
+#Remove duplicates
+library(dplyr)
+tbsubset2 %>% distinct
+
+#Load population data, order and append
+pop <- read.csv(url("https://raw.githubusercontent.com/danielhong98/MSDA-Spring-2016/master/population.csv"))
+pop <- pop[order(pop$country, pop$year),]
+tbsubset2distinct <- data.frame(tbsubset2 %>% distinct, pop$pop)
+names(tbsubset2distinct) <- c("country", "year", "tbsum", "population")
+
+#Add rate column and to be consistent with cited stats use cases per 100,000
+rate <- round((10^5)*tbsubset2distinct$tbsum/tbsubset2distinct$pop,2)
+tbsubset2distinct <- data.frame(tbsubset2distinct, rate)
+names(tbsubset2distinct) <- c("country", "year", "tbsum", "population", "rate")
+
+#Final tbrate list
+tbrate <-subset (tbsubset2distinct, select = c(1,2,5))
+head(tbrate)
