@@ -1,0 +1,42 @@
+---
+title: "DATA 607 HW 2 Aussie"
+author: "Daniel Hong"
+date: "February 15, 2016"
+output: pdf_document
+---
+
+#User Library plyr - Tools for Splitting, Applying and Combining Data
+library(plyr)
+dat <- data.frame(read.csv("https://raw.githubusercontent.com/danielhong98/MSDA-Spring-2016/master/AusOpen-men-2013.csv", header = TRUE))
+#Create a subset of Column Names - Quarter, Stock, Date, Close, Volume, Percent_Change_Price, Percent_Change_Volume_Over_Last_wk
+AussieOpen <- subset(dat, select = c(8, 10, 15, 16, 27, 29, 34, 35))
+head(AussieOpen)
+
+#Rename Colums
+names(AussieOpen) [1] <- "AcesPlyr1"
+names(AussieOpen) [2] <- "WinnersPlyr1"
+names(AussieOpen) [3] <- "NetPtsPlyr1"
+names(AussieOpen) [4] <- "TotalPtsPlyr1"
+names(AussieOpen) [5] <- "AcesPlyr2"
+names(AussieOpen) [6] <- "WinnersPlyr2"
+names(AussieOpen) [7] <- "NetPtsPlyr2"
+names(AussieOpen) [8] <- "TotalPtsPlyr2"
+
+#Sum columns, combine relevant columns
+colSums(AussieOpen, na.rm=TRUE)
+Aces <- AussieOpen$AcesPlyr1 + AussieOpen$AcesPlyr2
+Winners <- AussieOpen$WinnersPlyr1 + AussieOpen$WinnersPlyr2
+NetPts <- AussieOpen$NetPtsPlyr1 + AussieOpen$NetPtsPlyr2
+TotalPts <- Aces + Winners + NetPts
+sum(Aces)
+sum(Winners)
+sum(NetPts)
+sum(TotalPts)
+
+#Summary: Aces represent the largest portion of the points won (~67%) followed by Winners (~24%) then Net Points (~9%)
+AcesPct <- sum(Aces)/sum(TotalPts)
+WinnersPct <- sum(Winners)/sum(TotalPts)
+NetPtsPct <- sum(NetPts)/sum(TotalPts)
+AcesPct
+WinnersPct
+NetPtsPct
