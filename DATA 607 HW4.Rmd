@@ -1,0 +1,50 @@
+---
+title: "DATA 607 HW4"
+author: "Daniel Hong"
+date: "February 19, 2016"
+output: html_document
+---
+library(stringr)
+library(knitr)
+
+#3
+##names
+simpsons <- c("Moe Syzlak", "Burns, C. Montgomery", "Rev. Timothy Lovejoy", "Ned Flanders", "Simpson, Homer", "Dr. Julius Hibbert")
+
+##identify when last name is first
+lastname <- str_detect(simpsons,",")
+lastname
+
+##reorder names and remove the white spaces between names
+sub("([^,]+),\\s*([^,]+)", "\\2 \\1", simpsons)
+
+##identify names preceded by titles
+title <- str_detect(simpsons, "Rev.|Dr.")
+title
+
+##identify second names
+second_names <- str_count(simpsons, " ") > ifelse(title, 2, 1)
+second_names
+
+#7
+##original string will identify all the characters
+str_extract("<title>+++BREAKING NEWS+++</title>", "<.+>")
+
+##identifying the first html tag requires a ?
+str_extract("<title>+++BREAKING NEWS+++</title>", "<.+?>")
+
+#8
+##original string returns a dash
+str_extract("(5-3)^2=5^2-2*5*3+3^2 conforms to the binomial theorem", "[^0-9=+*()]+")
+
+##the original string did not work because the ^ and - need to be identified as such by \\
+str_extract("(5-3)^2=5^2-2*5*3+3^2 conforms to the binomial theorem", "[\\^\\-0-9=+*()]+")
+
+#9
+code <- c("clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr")
+
+##tried using regmatches but all of the non upper case letters returned "" and was not sure how to remove those
+regmatches(code, gregexpr('[[:punct:]]*[[:upper:][:punct:]]*', code))
+
+##used gsub to unlock the message
+gsub("[^A-Z]", "", code)
