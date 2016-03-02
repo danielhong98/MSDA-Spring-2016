@@ -1,0 +1,42 @@
+---
+title: "Project 1"
+author: "Daniel Hong"
+date: "February 28, 2016"
+output: html_document
+---
+```{r}
+##Load library and data
+library(stringr)
+chesstourney = readLines("https://raw.githubusercontent.com/danielhong98/MSDA-Spring-2016/29394c9cb74160fd53931123c2358019208293bb/chesstournament.txt")
+dput(head(chesstourney))
+
+##cleanse Data > create 2 vectors for each row
+chesstourneynohead = chesstourney[-1:-4]
+dashes = grep("^-+", chesstourneynohead)
+chessfinal = chesstourneynohead[-dashes]
+v1 = chessfinal[c(TRUE, FALSE)]
+v2 = chessfinal[c(FALSE, TRUE)]
+head(v1)
+head(v2)
+
+##Extract Data > create data frame
+name <- (str_trim(unlist(str_extract_all(v1, "([[:alpha:] ]-?){15,31}"))))
+str(name)
+totpts <- unlist(str_extract_all(v1, "[:digit:][//.][:digit:]"))
+str(totpts)
+state <- str_trim(unlist(str_extract_all(v2, " MI | ON | OH ")))
+str(state)
+prerate <- as.numeric(sub(pattern = 'R: ', replacement = '', x = unlist(str_extract_all(v2, "R: [[:digit:] ]{4}"))))
+str(prerate)
+chessrate <- data.frame(name, state, totpts, prerate)
+list(chessrate)
+
+##Calculate Opponent Average Rating and append data frame
+id = c(1:length(v1))
+opp = data.frame (id,prerate)
+head(opp)
+
+##Export .csv
+write.csv(chessrate,"ouput.csv")
+```
+
