@@ -4,6 +4,7 @@ author: "Daniel Hong"
 date: "February 28, 2016"
 output: html_document
 ---
+
 ```{r}
 ##Load library and data
 library(stringr)
@@ -31,10 +32,20 @@ str(prerate)
 chessrate <- data.frame(name, state, totpts, prerate)
 list(chessrate)
 
-##Calculate Opponent Average Rating and append data frame
+##Calculate Opponent Average Rating and append data
 id = c(1:length(v1))
 opp = data.frame (id,prerate)
 head(opp)
+opponents = str_extract_all(v1, ("[0-9]{1,2}(?=\\|)"))
+str(opponents)
+opponents <- lapply(opponents, as.numeric)
+avgscore <- function(opponents) {
+  numopp <- length(opponents)
+  totrate <- 0
+  for (i in opponents){totrate <- totrate + chessrate[i, "prerate"]}
+  return(totrate/numopp)}
+chessrate[,"avgoppprerate"] <- unlist(lapply(opponents, avgscore))
+list(chessrate)
 
 ##Export .csv
 write.csv(chessrate,"ouput.csv")
