@@ -1,0 +1,58 @@
+---
+title: "DATA 607 HW 6"
+author: "Daniel Hong"
+date: "March 6, 2016"
+output: html_document
+---
+
+```{r}
+#Load packages
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+
+#Read in .csv
+source <- read.csv("https://raw.githubusercontent.com/danielhong98/MSDA-Spring-2016/f59001030c617a62564cc2a09937c4376afc317c/Tidying%20and%20Transforming%20Data.csv", header = TRUE, sep=",", stringsAsFactors = FALSE)
+source
+
+#Clean the dataframe by removing columns/rows and assign column names for airlines and status, repeat row names
+source <- subset(source, c(TRUE, TRUE, FALSE, TRUE, TRUE), 2:8)
+colnames(source)[1] <- "Carrier"
+colnames(source)[2] <- "Status"
+source[2,1] <- "Alaska"
+source[5,1] <- "AM WEST"
+upsource <- source[-(3), ]
+
+#Cleaned dataframe is easier to read but more work to be done, tidy to have 4 columns and alternating rows
+list <- gather(upsource, "City", "Frequency", 3:7)
+head(list)
+
+#Some of the city names have extra characters, let's remove
+list$City <- gsub("\\."," ",list$City)
+head(list)
+
+#Perform analysis to compare the arrival delays for the two airlines
+##At first glance it appears that AM WEST has a higher percentage of delays in each city
+list <- spread(list, Status, Frequency)
+head(list)
+list$delayed <- as.numeric(as.character(list$delayed))
+list$`on time` <- as.numeric(as.character(list$`on time`))
+list <- mutate(list, total = delayed + `on time`, pctdelay = delayed / total * 100)
+head(list)
+list <- arrange(list, City, pctdelay)
+list
+
+##Boxplot pct delays by city
+qplot(City, pctdelay, data = list, geom = c("boxplot", "jitter"), fill = City, main = "Pct Delays by City", xlab = "", ylab = "Pct Delayed")
+
+#Group by City
+##It appears that most delays, ~22% of the flights, are delayed in San Francisoco and the least delays, ~8%, are in Phoenix
+list %>% group_by(City) %>% summarise(aggdelay = sum(delayed), aggontime = sum(`on time`), aggpctdelay = (aggdelay / (aggdelay + aggontime) * 100))
+
+#Group by Carrier
+##When we look at the aggregate totals by carrier, Alaska (~13%) has a higher percentage of delays compared to AM WEST (~11%)
+list %>% group_by(Carrier) %>% summarise(aggdelay = sum(delayed), aggontime = sum(`on time`), aggpctdelay = (aggdelay / (aggdelay + aggontime) * 100))
+
+#I could not create boxplots after grouping by City or Carrier. There was a post on Stackoverflow that used melt but it did not work when I tried.
+```
