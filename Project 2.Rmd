@@ -1,0 +1,141 @@
+---
+title: "DATA 607 Project 2"
+author: "Daniel Hong"
+date: "March 12, 2016"
+output: html_document
+---
+
+## IS 607 Project 2
+
+### Load libraries
+library(tidyr)
+library(dplyr)
+library(stringr)
+
+### Load dataset 1 MLB
+
+```{r}
+MLB <- read.csv("https://raw.githubusercontent.com/danielhong98/MSDA-Spring-2016/6fcd4ca76df1116376365dff961eaba3a85df4fe/MLB.txt", header=TRUE, sep = "\t")
+head(MLB)
+df2=data.frame(MLB)
+```
+
+### Remove rows repeating header and years World Series was not played
+
+```{r}
+df2 <- df2[-c(17,18,24,29,40,41,52,63,64,75,86,87,98,109,110,121,127),]
+head(df2)
+```
+
+### Separate the Results column into Winners and Losers and we find throughout the history of the World Series from 1903 to 2015 there have been 35 distinct winning teams and 42 distinct losing teams
+
+```{r}
+mutate(df2, Results = gsub(pattern = "\\s|\\d+", replacement = "", x = Results)) %>% separate(col = "Results", into = c("Winner", "Loser"), sep = ",") %>% summarize(w = n_distinct(Winner), l = n_distinct(Loser))
+```
+
+### Load dataset 2 Trade
+
+```{r}
+Trade <- read.csv("https://raw.githubusercontent.com/danielhong98/MSDA-Spring-2016/05f302dbab2956d365ffbf80ddc5ed7bf2dc6566/Trade.csv", header=TRUE, sep = ",", na.strings = "?",stringsAsFactors=FALSE)
+head(Trade)
+dftrade=data.frame(Trade)
+```
+
+### Interested in the relationship of Korea exports and China imports
+
+```{r}
+KoreaEx <- subset(dftrade, Trade$CTYNAME == 'Korea, South', select = c(CTYNAME, year, EJAN:EDEC))
+head(KoreaEx)
+ChinaIm <- subset(dftrade, Trade$CTYNAME == 'China', select = c(CTYNAME, year, IJAN:IDEC))
+head(ChinaIm)
+```
+
+### Clean up the column names
+
+```{r}
+colnames(KoreaEx) = c("Country", "Year", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+colnames(ChinaIm) = c("Country", "Year", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+```
+
+### Gather monthly trade data
+
+```{r}
+KoreaEx = KoreaEx %>% gather(Country, Year, Jan:Dec)
+ChinaIm = ChinaIm %>% gather(Country, Year, Jan:Dec)
+head(KoreaEx)
+head(ChinaIm)
+```
+
+### Again rename the columns
+
+```{r}
+colnames(KoreaEx) = c("Country", "Year", "Month", "Exports")
+colnames(ChinaIm) = c("Country", "Year", "Month", "Imports")
+head(KoreaEx)
+head(ChinaIm)
+```
+
+### Remove commas from the Exports and made sure Year and Exports are numeric values. Repeat process for Imports
+
+```{r}
+KoreaEx$Exports <- as.numeric(gsub(",","",KoreaEx$Exports))
+KoreaEx$Year <- as.numeric(gsub(",","",KoreaEx$Year))
+head(KoreaEx)
+ChinaIm$Imports <- as.numeric(gsub(",","",ChinaIm$Imports))
+ChinaIm$Year <- as.numeric(gsub(",","",ChinaIm$Year))
+head(KoreaEx)
+head(ChinaIm)
+```
+
+### Analyze Imports and Exports to see if there is any divergence, e.g. In each January between 2009 and 2014 Korea exports grew while one of it's largest trading partners (China) imports grew each January from 2009 to 2013 but contracted in Jan 2014. This only scratches the surface and we can look at greater detail to find much more interesting anomolies in these data.
+
+```{r}
+summarise(KoreaEx, Exports = sum(Exports))
+summarise(ChinaIm, Imports = sum(Imports))
+
+summarise(KoreaEx, Exports = mean(Exports))
+summarise(ChinaIm, Imports = mean(Imports))
+
+KoreaEx %>% select(Month, Year, Exports) %>% head
+ChinaIm %>% select(Month, Year, Imports) %>% head
+```
+
+### Load dataset 3 NBA
+
+```{r}
+NBA <- read.csv("https://raw.githubusercontent.com/danielhong98/MSDA-Spring-2016/7b51fddb868d151b14cfb69732898d0c49517fcf/NBA.txt", header=TRUE, sep = "\t", na.strings= c("","NA"))
+head(NBA)
+df1 <- data.frame(NBA)
+```
+
+### Remove rows with repeating headers and current season that is not complete. We can alternatively annualize the results but assume we do not know how many games have been played so far in the 82 game season
+
+```{r}
+df1 <- df1[-c(1,21,42,63),]
+head(df1)
+```
+
+### Also remove the Rk and Lg columns
+
+```{r}
+df1 = subset(df1, select = -Rk)
+df1 = subset(df1, select = -Lg)
+head(df1)
+```
+
+### Gather the Wins for each team
+
+```{r}
+NBAwins <- gather(df1, "Team", "Wins", 2:31, na.rm = TRUE)
+colnames(NBAwins) <- c("Season", "Team", "Wins")
+NBAwins$Wins = c(as.numeric(NBAwins$Wins))
+head(NBAwins)
+```
+
+### Summarise results. There have been 54,000 NBA games played and the average win total is ~40 games. The NY Knicks have played in 66 seasons and their ups and downs can be isolated below.
+
+```{r}
+summarise(NBAwins, Wins = sum(Wins))
+summarise(NBAwins, Wins = mean(Wins))
+filter(NBAwins, Team == "NYK")
+```
