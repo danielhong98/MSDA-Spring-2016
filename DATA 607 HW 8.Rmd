@@ -1,0 +1,29 @@
+---
+title: "DATA 607 Assignment 8"
+author: "Daniel Hong"
+date: "March 20, 2016"
+output: html_document
+---
+
+library(XML)
+library(jsonlite)
+library(RCurl)
+
+## Read HTML
+htmlurl <-"https://raw.githubusercontent.com/danielhong98/MSDA-Spring-2016/f30ce4eeeb987cd33839df58733c1d5325c43618/books.html"
+htmlbooks <- getURL(htmlurl)
+htmlbookstable <- readHTMLTable(htmlbooks, skip.rows=1, header=TRUE)
+View(htmlbookstable)
+
+## Read XML - Was getting an error message because in one of the titles there was a "&". Found a workaround on Stackoverflow but could not get it to work so cheated by going to the source file and replacing the symbol with and. Also found the xmlToDataFrame guidance as well.
+xmlurl <- getURL("https://raw.githubusercontent.com/danielhong98/MSDA-Spring-2016/9e704b93b0fa5b3c71d52132a2190eb31dbe482c/books.xml")
+xmlbooks <- xmlParse(xmlurl)
+xmldf <- xmlToDataFrame(xmlbooks)
+xmldf
+
+## Read JSON
+jsonurl <- "https://raw.githubusercontent.com/danielhong98/MSDA-Spring-2016/f30ce4eeeb987cd33839df58733c1d5325c43618/books.json"
+jsonbooks <- fromJSON(jsonurl)
+View(jsonbooks)
+
+## In XML format the "&"" symbol could not be recognized like with HTML or JSON, this is the main difference I found by luck. Also I noticed that the headers look a little strange but I did not adjust 
