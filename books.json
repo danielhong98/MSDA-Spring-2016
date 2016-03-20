@@ -1,0 +1,27 @@
+{
+  "books": {
+    "book": [
+      {
+	"name": "The Heretics of Finance",
+	"author": "Andrew W. Lo, Jasmina Hasanhodzic",
+	"publisher": "Bloomberg",
+	"isbn": "978-1-57660-316-1",
+	"price": "$29.95"
+      },
+      {
+	"name": "The Art of M&A Fourth Edition",
+	"author": "Stanley Forster Reed, Alexandra Reed Lajoux, H. Peter Nesvold",
+	"publisher": "McGraw Hill",
+	"isbn": "978-0-07-240302-3",
+	"price": "$135.00"
+      },
+      {
+	"name": "Mr.Market Miscalculates",
+	"author": "James Grant",
+	"publisher": "Axios",
+	"isbn": "978-1-60419-008-3",
+	"price": "NA"
+      }
+    ]
+  }
+}
