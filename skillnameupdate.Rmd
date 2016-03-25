@@ -1,0 +1,53 @@
+---
+title: "skillname"
+author: "Daniel Hong"
+date: "March 23, 2016"
+output: html_document
+---
+
+library(dplyr)
+library(knitr)
+library(ggplot2)
+library(RColorBrewer)
+
+###read data
+```{r}
+jobdata <- read.csv("https://raw.githubusercontent.com/danielhong98/MSDA-Spring-2016/347a383eae3b9f02bc5d128efb5de14e1f688f8e/tbl_data_v2.csv")
+```
+
+###order by source_name (asc) and weighted_rating_overall
+```{r}
+newjobdata <- jobdata[with(jobdata, order(source_name,-weighted_rating_overall)),]
+```
+
+###list skill_name for each source_name
+```{r}
+Google <- subset(newjobdata, source_name == "Google", select=c(source_name, skill_name,weighted_rating_overall))
+Google <- Google[c(1:20),]
+Indeed <- subset(newjobdata, source_name == "Indeed", select=c(source_name, skill_name, weighted_rating_overall))
+Indeed <- Indeed[c(1:20),]
+Kaggle <- subset(newjobdata, source_name == "Kaggle", select=c(source_name, skill_name, weighted_rating_overall))
+Kaggle <- Kaggle[c(1:20),]
+Combined <- cbind(Google,Indeed,Kaggle)
+Combined$source_name <- NULL
+Combined$source_name <- NULL
+Combined$source_name <- NULL
+colnames(Combined)[1] <- "GoogleSkills"
+colnames(Combined)[2] <- "GoogleRatings"
+colnames(Combined)[3] <- "IndeedSkills"
+colnames(Combined)[4] <- "IndeedRatings"
+colnames(Combined)[5] <- "KaggleSkills"
+colnames(Combined)[6] <- "KaggleRatings"
+kable(Combined)
+```
+
+###plot results
+```{r}
+darkcols <- brewer.pal(8,"Dark2")
+names <- Combined$GoogleSkills
+barplot(Combined$GoogleRatings,main="GoogleRatings", horiz=TRUE, names.arg=names, las=1, col=darkcols)
+names <- Combined$IndeedSkills
+barplot(Combined$IndeedRatings,main="IndeedRatings", horiz=TRUE, names.arg=names, las=1, col=darkcols)
+names <- Combined$KaggleSkills
+barplot(Combined$KaggleRatings,main="KaggleRatings", horiz=TRUE, names.arg=names, las=1, col=darkcols)
+```
