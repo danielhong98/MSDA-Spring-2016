@@ -1,0 +1,22 @@
+---
+title: "DATA 607 Assignment 10"
+author: "Daniel Hong"
+date: "April 2, 2016"
+output: html_document
+---
+
+###The Most Popular API
+###http://api.nytimes.com/svc/mostpopular/{version}/{resource-type}/{section}[/share-types]/{time-period}[.response-format]?api-key={your-API-key}
+
+###Libraries
+library(jsonlite)
+library(knitr)
+
+###Search for the past day's most viewed articles
+url <- "http://api.nytimes.com/svc/mostpopular/v2/mostviewed/all-sections/1.json?api-key=59a5669545a4d181afd6fe6614dc85bd:8:74888076"
+
+###Table with attributes
+df <- fromJSON(url, simplifyDataFrame=TRUE)
+table <- cbind(df$results$title,df$results$section,df$results$byline,df$results$url)
+colnames(table) <- c("Title", "Section", "Author", "Link")
+kable(table)
